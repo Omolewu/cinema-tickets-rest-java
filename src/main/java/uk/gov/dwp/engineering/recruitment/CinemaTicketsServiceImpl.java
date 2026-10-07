@@ -1,5 +1,6 @@
 package uk.gov.dwp.engineering.recruitment;
 
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.engineering.recruitment.domain.BookingConfirmation;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
@@ -24,7 +25,8 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
   public BookingConfirmation purchaseTickets(final Long accountId,
       final TicketRequest... ticketRequests)
       throws InvalidBookingException {
-
-    throw new InvalidBookingException("Not implemented yet");
+    paymentService.debitAccount(accountId, new BigDecimal("25.99"));
+    seatReservationService.reserveSeats(accountId, 1L);
+    return new BookingConfirmation(accountId);
   }
 }
