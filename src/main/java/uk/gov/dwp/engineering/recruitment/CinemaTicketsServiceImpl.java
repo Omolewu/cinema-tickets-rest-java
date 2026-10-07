@@ -23,10 +23,14 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
   @Override
   public BookingConfirmation purchaseTickets(final Long accountId,
-      final TicketRequest... ticketRequests)
-      throws InvalidBookingException {
-    paymentService.debitAccount(accountId, new BigDecimal("25.99"));
-    seatReservationService.reserveSeats(accountId, 1L);
+      final TicketRequest... ticketRequests) throws InvalidBookingException {
+
+    final var ticketCount = ticketRequests[0].ticketCount();
+    final var totalAmount = new BigDecimal("25.99").multiply(BigDecimal.valueOf(ticketCount));
+
+    paymentService.debitAccount(accountId, totalAmount);
+    seatReservationService.reserveSeats(accountId, (long) ticketCount);
+
     return new BookingConfirmation(accountId);
   }
 }
