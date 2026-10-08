@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.engineering.recruitment.domain.BookingConfirmation;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
+import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 import uk.gov.dwp.engineering.recruitment.thirdparty.PaymentService;
 import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
@@ -24,12 +25,24 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
   @Override
   public BookingConfirmation purchaseTickets(final Long accountId,
       final TicketRequest... ticketRequests) throws InvalidBookingException {
+    var totalAmount = BigDecimal.ZERO;
+    long totalSeats = 0L;
 
-    final var ticketCount = ticketRequests[0].ticketCount();
-    final var totalAmount = new BigDecimal("25.99").multiply(BigDecimal.valueOf(ticketCount));
+    for (final var ticketRequest : ticketRequests) {
+      final var ticketPrice = switch (ticketRequest.type()) {
+        case ADULT -> new BigDecimal("25.99");
+        case CHILD -> new BigDecimal("17.50");
+        case INFANT -> BigDecimal.ZERO;
+      };
+      totalAmount =
+          totalAmount.add(ticketPrice.multiply(BigDecimal.valueOf(ticketRequest.ticketCount())));
+      if (ticketRequest.type() != TicketType.INFANT) {
+        totalSeats += ticketRequest.ticketCount();
+      }
+    }
 
     paymentService.debitAccount(accountId, totalAmount);
-    seatReservationService.reserveSeats(accountId, (long) ticketCount);
+    seatReservationService.reserveSeats(accountId, totalSeats);
 
     return new BookingConfirmation(accountId);
   }
