@@ -22,6 +22,9 @@ class BookingValidator {
             if (ticketRequest.ticketCount() <= 0) {
                 throw new InvalidBookingException("Ticket count must be greater than zero.");
             }
+            if (ticketRequest.ticketCount() > 25) {
+                throw new InvalidBookingException("Ticket count cannot exceed 25.");
+            }
         }
 
     }
