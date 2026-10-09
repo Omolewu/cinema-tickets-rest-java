@@ -47,7 +47,7 @@ class BookingValidatorTest {
     }
 
     @Nested
-    @DisplayName("Ticket Requests validation")
+    @DisplayName("Ticket Request validation")
     class TicketRequestsValidationTests {
 
         @Test
@@ -60,13 +60,15 @@ class BookingValidatorTest {
         @Test
         @DisplayName("should throw exception when ticket requests are null")
         void shouldThrowExceptionWhenTicketRequestsAreNull() {
-            assertThrows(
-                InvalidBookingException.class,
-                    () -> bookingValidator.validate(
-                        VALID_ACCOUNT_ID,
-                        (TicketRequest[]) null
-                    )
-                );
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, (TicketRequest[]) null));
+        }
+
+        @Test
+        @DisplayName("should throw exception when any ticket request is null")
+        void shouldThrowExceptionWhenAnyTicketRequestIsNull() {
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, (TicketRequest) null));
         }
 
     }
