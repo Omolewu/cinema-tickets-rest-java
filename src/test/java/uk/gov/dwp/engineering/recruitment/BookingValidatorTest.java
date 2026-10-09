@@ -1,5 +1,6 @@
 package uk.gov.dwp.engineering.recruitment;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -115,8 +116,8 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, childRequest));
         }
 
-        @Test 
-        @DisplayName ("Should throw exception when infant tickets want to purchased without adult tickets")
+        @Test
+        @DisplayName("Should throw exception when infant tickets are purchased without adult tickets")
         void shouldThrowExceptionWhenInfantTicketsWithoutAdultTickets() {
             final var infantRequest = new TicketRequest(TicketType.INFANT, 1);
 
@@ -126,4 +127,16 @@ class BookingValidatorTest {
 
     }
 
+    @Nested
+    @DisplayName("Valid Booking Scenarios")
+    class ValidBookingScenariosTests {
+
+        @Test
+        @DisplayName("should allow an adult ticket purchase")
+        void shouldAllowAdultTicketPurchase() {
+            final var adultRequest = new TicketRequest(TicketType.ADULT, 2);
+
+            assertDoesNotThrow(() -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest));
+        }
+    }
 }
