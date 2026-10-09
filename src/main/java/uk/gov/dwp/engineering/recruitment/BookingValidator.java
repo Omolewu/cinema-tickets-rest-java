@@ -10,10 +10,16 @@ class BookingValidator {
         if (accountId == null || accountId <= 0) {
             throw new InvalidBookingException("Account ID must be greater than zero.");
         }
-        if ( ticketRequests == null || ticketRequests.length == 0) {
+        
+        if (ticketRequests == null || ticketRequests.length == 0) {
             throw new InvalidBookingException("At least one ticket request must be provided.");
         }
-        
+
+        for (final var ticketRequest : ticketRequests) {
+            if (ticketRequest == null) {
+                throw new InvalidBookingException("Ticket request cannot be null.");
+            }
+        }
 
     }
 
