@@ -57,6 +57,18 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID));
         }
 
+        @Test
+        @DisplayName("should throw exception when ticket requests are null")
+        void shouldThrowExceptionWhenTicketRequestsAreNull() {
+            assertThrows(
+                InvalidBookingException.class,
+                    () -> bookingValidator.validate(
+                        VALID_ACCOUNT_ID,
+                        (TicketRequest[]) null
+                    )
+                );
+        }
+
     }
 
 }
