@@ -73,7 +73,7 @@ class BookingValidatorTest {
 
         @ParameterizedTest
         @ValueSource(ints = {0, -1})
-        @DisplayName("should throw exception when ticket count is zero or negative") 
+        @DisplayName("should throw exception when ticket count is zero or negative")
         void shouldThrowExceptionWhenTicketCountIsZeroOrNegative(final int ticketCount) {
             final var ticketRequest = new TicketRequest(TicketType.ADULT, ticketCount);
 
@@ -81,8 +81,8 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, ticketRequest));
         }
 
-        @Test 
-        @DisplayName ("should throw exception when any ticket category count exceeds 25 tickets")
+        @Test
+        @DisplayName("should throw exception when any ticket category count exceeds 25 tickets")
         void shouldThrowExceptionWhenAnyTicketCategoryCountExceeds25Tickets() {
             final var ticketRequest = new TicketRequest(TicketType.ADULT, 26);
 
@@ -90,8 +90,8 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, ticketRequest));
         }
 
-        @Test 
-        @DisplayName ("should throw exception when total ticket count exceeds 25 tickets")
+        @Test
+        @DisplayName("should throw exception when total ticket count exceeds 25 tickets")
         void shouldThrowExceptionWhenTotalTicketCountExceeds25Tickets() {
             final var adultRequest = new TicketRequest(TicketType.ADULT, 15);
             final var childRequest = new TicketRequest(TicketType.CHILD, 11);
@@ -100,6 +100,20 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, childRequest));
         }
 
+    }
+
+    @Nested
+    @DisplayName("Adult Dependency Validation Tests")
+    class AdultDependencyValidationTests {
+
+        @Test
+        @DisplayName("Should throw exception when child tickets are purchased without adult tickets")
+        void shouldThrowExceptionWhenChildTicketsWithoutAdultTickets() {
+            final var childRequest = new TicketRequest(TicketType.CHILD, 1);
+
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, childRequest));
+        }
     }
 
 }
