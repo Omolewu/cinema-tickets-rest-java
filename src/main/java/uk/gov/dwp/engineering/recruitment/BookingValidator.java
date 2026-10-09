@@ -1,6 +1,8 @@
 package uk.gov.dwp.engineering.recruitment;
 
+
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
+import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
 class BookingValidator {
@@ -17,7 +19,8 @@ class BookingValidator {
         }
 
         int totalTicketCount = 0;
-
+        boolean hasAdultTicket = false;
+        boolean hasChildTicket = false;
         for (final var ticketRequest : ticketRequests) {
             if (ticketRequest == null) {
                 throw new InvalidBookingException("Ticket request cannot be null.");
@@ -30,10 +33,24 @@ class BookingValidator {
             }
 
             totalTicketCount += ticketRequest.ticketCount();
+
+            if (ticketRequest.type() == TicketType.CHILD) {
+                hasChildTicket = true;
+            }
+
+            if (ticketRequest.type() == TicketType.ADULT) {
+                hasAdultTicket = true;
+            }
         }
 
         if (totalTicketCount > 25) {
             throw new InvalidBookingException("Total ticket count cannot exceed 25.");
+        }
+
+
+        if (hasChildTicket && !hasAdultTicket) {
+            throw new InvalidBookingException(
+                    "Child tickets cannot be purchased without adult tickets.");
         }
 
     }
