@@ -82,12 +82,22 @@ class BookingValidatorTest {
         }
 
         @Test 
-        @DisplayName ("should throw exception when count exceeds 25 tickets")
-        void shouldThrowExceptionWhenCountExceeds25Tickets() {
+        @DisplayName ("should throw exception when any ticket category count exceeds 25 tickets")
+        void shouldThrowExceptionWhenAnyTicketCategoryCountExceeds25Tickets() {
             final var ticketRequest = new TicketRequest(TicketType.ADULT, 26);
 
             assertThrows(InvalidBookingException.class,
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, ticketRequest));
+        }
+
+        @Test 
+        @DisplayName ("should throw exception when total ticket count exceeds 25 tickets")
+        void shouldThrowExceptionWhenTotalTicketCountExceeds25Tickets() {
+            final var adultRequest = new TicketRequest(TicketType.ADULT, 15);
+            final var childRequest = new TicketRequest(TicketType.CHILD, 11);
+
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, childRequest));
         }
 
     }
