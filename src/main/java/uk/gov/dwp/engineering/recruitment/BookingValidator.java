@@ -21,6 +21,7 @@ class BookingValidator {
         int totalTicketCount = 0;
         boolean hasAdultTicket = false;
         boolean hasChildTicket = false;
+        boolean hasInfantTicket = false;
         for (final var ticketRequest : ticketRequests) {
             if (ticketRequest == null) {
                 throw new InvalidBookingException("Ticket request cannot be null.");
@@ -41,6 +42,10 @@ class BookingValidator {
             if (ticketRequest.type() == TicketType.ADULT) {
                 hasAdultTicket = true;
             }
+
+            if (ticketRequest.type() == TicketType.INFANT) {
+                hasInfantTicket = true;
+            }
         }
 
         if (totalTicketCount > 25) {
@@ -51,6 +56,10 @@ class BookingValidator {
         if (hasChildTicket && !hasAdultTicket) {
             throw new InvalidBookingException(
                     "Child tickets cannot be purchased without adult tickets.");
+        }
+        if (hasInfantTicket && !hasAdultTicket) {
+            throw new InvalidBookingException(
+                    "Infant tickets cannot be purchased without adult tickets.");
         }
 
     }
