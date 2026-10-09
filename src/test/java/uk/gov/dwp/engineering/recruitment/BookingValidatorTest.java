@@ -114,6 +114,16 @@ class BookingValidatorTest {
             assertThrows(InvalidBookingException.class,
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, childRequest));
         }
+
+        @Test 
+        @DisplayName ("Should throw exception when infant tickets want to purchased without adult tickets")
+        void shouldThrowExceptionWhenInfantTicketsWithoutAdultTickets() {
+            final var infantRequest = new TicketRequest(TicketType.INFANT, 1);
+
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, infantRequest));
+        }
+
     }
 
 }
