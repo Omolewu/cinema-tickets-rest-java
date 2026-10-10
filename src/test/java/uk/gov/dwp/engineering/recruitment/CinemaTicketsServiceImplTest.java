@@ -87,6 +87,22 @@ class CinemaTicketsServiceImplTest {
 
     }
 
+    @Test
+    @DisplayName("should charge only for adult tickets and reserve one seat for an adult and infant")
+    void shouldCalculatePaymentAndSeatsForAdultAndInfantTickets() {
+        final var adultTicketRequest = new TicketRequest(TicketType.ADULT, 1);
+        final var infantTicketRequest = new TicketRequest(TicketType.INFANT, 1);
+
+        final var confirmation = cinemaTicketsService.purchaseTickets(VALID_ACCOUNT_ID,
+                adultTicketRequest, infantTicketRequest);
+
+        verify(paymentService).debitAccount(VALID_ACCOUNT_ID, new BigDecimal("25.99"));
+
+        verify(seatReservationService).reserveSeats(VALID_ACCOUNT_ID, 1L);
+
+        assertEquals(VALID_ACCOUNT_ID, confirmation.accountId());
+    }
+
 
 
 }
