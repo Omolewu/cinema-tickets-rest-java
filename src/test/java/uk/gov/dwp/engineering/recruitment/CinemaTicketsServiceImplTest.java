@@ -103,6 +103,21 @@ class CinemaTicketsServiceImplTest {
         assertEquals(VALID_ACCOUNT_ID, confirmation.accountId());
     }
 
+    @Test
+    @DisplayName("should calculate payment and seats for mixed ticket types")
+    void shouldCalculatePaymentAndSeatsForMixedTicketTypes() {
+        final var adultRequest = new TicketRequest(TicketType.ADULT, 2);
+        final var childRequest = new TicketRequest(TicketType.CHILD, 2);
+        final var infantRequest = new TicketRequest(TicketType.INFANT, 1);
+
+        cinemaTicketsService.purchaseTickets(VALID_ACCOUNT_ID, adultRequest, childRequest,
+                infantRequest);
+
+        verify(paymentService).debitAccount(VALID_ACCOUNT_ID, new BigDecimal("86.98"));
+
+        verify(seatReservationService).reserveSeats(VALID_ACCOUNT_ID, 4L);
+    }
+
 
 
 }
