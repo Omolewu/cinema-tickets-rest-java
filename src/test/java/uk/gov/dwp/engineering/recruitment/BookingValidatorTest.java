@@ -138,5 +138,16 @@ class BookingValidatorTest {
 
             assertDoesNotThrow(() -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest));
         }
+
+        @Test
+        @DisplayName("should allow child tickets when adult tickets are present")
+        void shouldAllowChildTicketsWhenAdultTicketsArePresent() {
+            final var adultRequest = new TicketRequest(TicketType.ADULT, 2);
+            final var childRequest = new TicketRequest(TicketType.CHILD, 1);
+
+            assertDoesNotThrow(
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, childRequest));
+        }
+
     }
 }
