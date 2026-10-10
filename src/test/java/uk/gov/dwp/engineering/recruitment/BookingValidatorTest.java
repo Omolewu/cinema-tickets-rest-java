@@ -159,5 +159,15 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, infantRequest));
         }
 
+        @Test 
+        @DisplayName ("should allow a booking with exactly 25 tickets")
+        void shouldAllowBookingWithExactly25Tickets() {
+            final var adultRequest = new TicketRequest(TicketType.ADULT, 20);
+            final var childRequest = new TicketRequest(TicketType.CHILD, 5);
+
+            assertDoesNotThrow(
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, childRequest));
+        }
+
     }
 }
