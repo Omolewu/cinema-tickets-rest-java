@@ -1,9 +1,11 @@
 package uk.gov.dwp.engineering.recruitment;
 
+import org.springframework.stereotype.Component;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
 import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
+@Component 
 class BookingValidator {
 
     void validate(final Long accountId, final TicketRequest... ticketRequests)

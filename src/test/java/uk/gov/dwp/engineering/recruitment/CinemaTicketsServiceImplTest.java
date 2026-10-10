@@ -31,11 +31,8 @@ class CinemaTicketsServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        cinemaTicketsService = new CinemaTicketsServiceImpl(
-            paymentService,
-            seatReservationService,
-            new BookingValidator()
-        );
+        cinemaTicketsService = new CinemaTicketsServiceImpl(paymentService, seatReservationService,
+                new BookingValidator());
     }
 
     @Test

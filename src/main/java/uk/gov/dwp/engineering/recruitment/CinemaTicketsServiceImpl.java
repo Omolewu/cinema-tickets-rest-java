@@ -16,15 +16,25 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
   private final SeatReservationService seatReservationService;
 
-  public CinemaTicketsServiceImpl(PaymentService paymentService,
-      SeatReservationService seatReservationService) {
+  private final BookingValidator bookingValidator;
+
+  public CinemaTicketsServiceImpl(
+    PaymentService paymentService,
+      SeatReservationService seatReservationService,
+       BookingValidator bookingValidator
+      ) {
     this.paymentService = paymentService;
     this.seatReservationService = seatReservationService;
+    this.bookingValidator = bookingValidator;
   }
 
   @Override
-  public BookingConfirmation purchaseTickets(final Long accountId,
-      final TicketRequest... ticketRequests) throws InvalidBookingException {
+  public BookingConfirmation purchaseTickets(
+    final Long accountId,
+    final TicketRequest... ticketRequests
+  ) throws InvalidBookingException {
+   
+    bookingValidator.validate(accountId, ticketRequests);
     var totalAmount = BigDecimal.ZERO;
     long totalSeats = 0L;
 
