@@ -26,11 +26,17 @@ class BookingValidator {
             if (ticketRequest == null) {
                 throw new InvalidBookingException("Ticket request cannot be null.");
             }
+
             if (ticketRequest.ticketCount() <= 0) {
                 throw new InvalidBookingException("Ticket count must be greater than zero.");
             }
+
             if (ticketRequest.ticketCount() > 25) {
                 throw new InvalidBookingException("Ticket count cannot exceed 25.");
+            }
+
+            if (ticketRequest.type() == null) {
+                throw new InvalidBookingException("Ticket type cannot be null.");
             }
 
             totalTicketCount += ticketRequest.ticketCount();
@@ -63,5 +69,7 @@ class BookingValidator {
         }
 
     }
+
+
 
 }
