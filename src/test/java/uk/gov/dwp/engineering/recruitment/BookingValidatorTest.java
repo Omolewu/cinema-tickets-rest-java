@@ -72,6 +72,15 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, (TicketRequest) null));
         }
 
+        @Test
+        @DisplayName ("should throw exception when ticket type is null")
+        void shouldThrowExceptionWhenTicketTypeIsNull() {
+            final var ticketRequest = new TicketRequest(null, 1);
+
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, ticketRequest));
+        }
+
         @ParameterizedTest
         @ValueSource(ints = {0, -1})
         @DisplayName("should throw exception when ticket count is zero or negative")
