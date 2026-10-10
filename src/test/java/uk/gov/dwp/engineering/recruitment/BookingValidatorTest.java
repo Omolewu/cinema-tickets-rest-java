@@ -134,6 +134,16 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, infantRequest));
         }
 
+        @Test
+        @DisplayName ("should throw exception when infant tickets exceed adult tickets")
+        void shouldThrowExceptionWhenInfantTicketsExceedAdultTickets() {
+            final var adultRequest = new TicketRequest(TicketType.ADULT, 1);
+            final var infantRequest = new TicketRequest(TicketType.INFANT, 2);
+
+            assertThrows(InvalidBookingException.class,
+                    () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, infantRequest));
+        }
+
     }
 
     @Nested
