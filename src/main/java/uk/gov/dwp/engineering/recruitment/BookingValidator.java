@@ -1,6 +1,5 @@
 package uk.gov.dwp.engineering.recruitment;
 
-
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
 import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
@@ -19,38 +18,29 @@ class BookingValidator {
         }
 
         int totalTicketCount = 0;
-        boolean hasAdultTicket = false;
+        int adultTicketCount = 0;
+        int infantTicketCount = 0;
         boolean hasChildTicket = false;
-        boolean hasInfantTicket = false;
+
         for (final var ticketRequest : ticketRequests) {
             if (ticketRequest == null) {
                 throw new InvalidBookingException("Ticket request cannot be null.");
-            }
-
-            if (ticketRequest.ticketCount() <= 0) {
-                throw new InvalidBookingException("Ticket count must be greater than zero.");
-            }
-
-            if (ticketRequest.ticketCount() > 25) {
-                throw new InvalidBookingException("Ticket count cannot exceed 25.");
             }
 
             if (ticketRequest.type() == null) {
                 throw new InvalidBookingException("Ticket type cannot be null.");
             }
 
+            if (ticketRequest.ticketCount() <= 0) {
+                throw new InvalidBookingException("Ticket count must be greater than zero.");
+            }
+
             totalTicketCount += ticketRequest.ticketCount();
 
-            if (ticketRequest.type() == TicketType.CHILD) {
-                hasChildTicket = true;
-            }
-
-            if (ticketRequest.type() == TicketType.ADULT) {
-                hasAdultTicket = true;
-            }
-
-            if (ticketRequest.type() == TicketType.INFANT) {
-                hasInfantTicket = true;
+            switch (ticketRequest.type()) {
+                case ADULT -> adultTicketCount += ticketRequest.ticketCount();
+                case CHILD -> hasChildTicket = true;
+                case INFANT -> infantTicketCount += ticketRequest.ticketCount();
             }
         }
 
@@ -58,14 +48,14 @@ class BookingValidator {
             throw new InvalidBookingException("Total ticket count cannot exceed 25.");
         }
 
+        if (infantTicketCount > adultTicketCount) {
+            throw new InvalidBookingException(
+                    "Each infant ticket requires an accompanying adult ticket.");
+        }
 
-        if (hasChildTicket && !hasAdultTicket) {
+        if (hasChildTicket && adultTicketCount == 0) {
             throw new InvalidBookingException(
                     "Child tickets cannot be purchased without adult tickets.");
-        }
-        if (hasInfantTicket && !hasAdultTicket) {
-            throw new InvalidBookingException(
-                    "Infant tickets cannot be purchased without adult tickets.");
         }
 
     }
