@@ -81,4 +81,26 @@ class CinemaTicketsControllerTest {
                 """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
     }
 
+    @Test
+    @DisplayName("should return bad request when account ID is invalid")
+    void shouldReturnBadRequestWhenAccountIdIsInvalid() throws Exception {
+        final var errorMessage = "Account ID must be greater than zero.";
+
+        when(cinemaTicketsService.purchaseTickets(eq(0L), any(TicketRequest[].class)))
+                .thenThrow(new InvalidBookingException(errorMessage));
+
+        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "accountId": 0,
+                  "ticketRequests": [
+                    {
+                      "type": "ADULT",
+                      "ticketCount": 1
+                    }
+                  ]
+                }
+                """)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value(errorMessage));
+    }
+
 }
