@@ -118,6 +118,23 @@ class CinemaTicketsServiceImplTest {
         verify(seatReservationService).reserveSeats(VALID_ACCOUNT_ID, 4L);
     }
 
+    @Test
+    @DisplayName("should aggregate multiple requests of the same ticket type")
+    void shouldAggregateMultipleRequestsOfSameTicketType() {
+        final var firstAdultRequest = new TicketRequest(TicketType.ADULT, 1);
+        final var secondAdultRequest = new TicketRequest(TicketType.ADULT, 2);
+
+        cinemaTicketsService.purchaseTickets(VALID_ACCOUNT_ID, firstAdultRequest,
+                secondAdultRequest);
+
+        verify(paymentService).debitAccount(VALID_ACCOUNT_ID, new BigDecimal("77.97"));
+
+        verify(seatReservationService).reserveSeats(VALID_ACCOUNT_ID, 3L);
+    }
+    
+    
+
+     
 
 
 }
