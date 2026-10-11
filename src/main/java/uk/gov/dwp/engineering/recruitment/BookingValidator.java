@@ -2,11 +2,11 @@ package uk.gov.dwp.engineering.recruitment;
 
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
-import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
-@Component 
+@Component
 class BookingValidator {
+    private static final int MAX_TICKETS_PER_PURCHASE = 25;
 
     void validate(final Long accountId, final TicketRequest... ticketRequests)
             throws InvalidBookingException {
@@ -46,8 +46,9 @@ class BookingValidator {
             }
         }
 
-        if (totalTicketCount > 25) {
-            throw new InvalidBookingException("Total ticket count cannot exceed 25.");
+        if (totalTicketCount > MAX_TICKETS_PER_PURCHASE) {
+            throw new InvalidBookingException(
+                    "Total ticket count cannot exceed " + MAX_TICKETS_PER_PURCHASE + ".");
         }
 
         if (infantTicketCount > adultTicketCount) {

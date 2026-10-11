@@ -18,11 +18,15 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
   private final BookingValidator bookingValidator;
 
+  private static final BigDecimal ADULT_TICKET_PRICE = new BigDecimal("25.99");
+
+  private static final BigDecimal CHILD_TICKET_PRICE = new BigDecimal("17.50");
+
   public CinemaTicketsServiceImpl(
-    PaymentService paymentService,
-      SeatReservationService seatReservationService,
-       BookingValidator bookingValidator
-      ) {
+   final  PaymentService paymentService,
+   final  SeatReservationService seatReservationService, 
+   final BookingValidator bookingValidator
+  ) {
     this.paymentService = paymentService;
     this.seatReservationService = seatReservationService;
     this.bookingValidator = bookingValidator;
@@ -32,16 +36,16 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
   public BookingConfirmation purchaseTickets(
     final Long accountId,
     final TicketRequest... ticketRequests
-  ) throws InvalidBookingException {
-   
+    ) throws InvalidBookingException {
+
     bookingValidator.validate(accountId, ticketRequests);
     var totalAmount = BigDecimal.ZERO;
     long totalSeats = 0L;
 
     for (final var ticketRequest : ticketRequests) {
       final var ticketPrice = switch (ticketRequest.type()) {
-        case ADULT -> new BigDecimal("25.99");
-        case CHILD -> new BigDecimal("17.50");
+        case ADULT -> ADULT_TICKET_PRICE;
+        case CHILD -> CHILD_TICKET_PRICE;
         case INFANT -> BigDecimal.ZERO;
       };
       totalAmount =
