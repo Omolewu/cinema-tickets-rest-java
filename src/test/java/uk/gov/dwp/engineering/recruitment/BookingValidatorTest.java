@@ -48,7 +48,7 @@ class BookingValidatorTest {
     }
 
     @Nested
-    @DisplayName("Ticket Request validation")
+    @DisplayName("Ticket request validation")
     class TicketRequestsValidationTests {
 
         @Test
@@ -92,8 +92,8 @@ class BookingValidatorTest {
         }
 
         @Test
-        @DisplayName("should throw exception when any ticket category count exceeds 25 tickets")
-        void shouldThrowExceptionWhenAnyTicketCategoryCountExceeds25Tickets() {
+        @DisplayName("should throw exception when a single ticket request exceeds 25 tickets")
+        void shouldThrowExceptionWhenSingleTicketRequestExceeds25Tickets() {
             final var ticketRequest = new TicketRequest(TicketType.ADULT, 26);
 
             assertThrows(InvalidBookingException.class,
@@ -119,15 +119,14 @@ class BookingValidatorTest {
             assertThrows(InvalidBookingException.class,
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, infantRequest));
         }
-
     }
 
     @Nested
-    @DisplayName("Adult Dependency Validation Tests")
+    @DisplayName("Adult dependency validation")
     class AdultDependencyValidationTests {
 
         @Test
-        @DisplayName("Should throw exception when child tickets are purchased without adult tickets")
+        @DisplayName("should throw exception when child tickets are purchased without adult tickets")
         void shouldThrowExceptionWhenChildTicketsWithoutAdultTickets() {
             final var childRequest = new TicketRequest(TicketType.CHILD, 1);
 
@@ -136,7 +135,7 @@ class BookingValidatorTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when infant tickets are purchased without adult tickets")
+        @DisplayName("should throw exception when infant tickets are purchased without adult tickets")
         void shouldThrowExceptionWhenInfantTicketsWithoutAdultTickets() {
             final var infantRequest = new TicketRequest(TicketType.INFANT, 1);
 
@@ -153,11 +152,10 @@ class BookingValidatorTest {
             assertThrows(InvalidBookingException.class,
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, infantRequest));
         }
-
     }
 
     @Nested
-    @DisplayName("Valid Booking Scenarios")
+    @DisplayName("Valid booking scenarios")
     class ValidBookingScenariosTests {
 
         @Test
@@ -198,7 +196,6 @@ class BookingValidatorTest {
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, childRequest));
         }
 
-
         @Test
         @DisplayName("should allow booking when infant count equals adult count")
         void shouldAllowBookingWhenInfantCountEqualsAdultCount() {
@@ -206,9 +203,7 @@ class BookingValidatorTest {
             final var infantRequest = new TicketRequest(TicketType.INFANT, 2);
 
             assertDoesNotThrow(
-
                     () -> bookingValidator.validate(VALID_ACCOUNT_ID, adultRequest, infantRequest));
         }
-
     }
 }
