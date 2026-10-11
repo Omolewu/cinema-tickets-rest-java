@@ -3,6 +3,9 @@ package uk.gov.dwp.engineering.recruitment;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.verify;
+
+import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.dwp.engineering.recruitment.thirdparty.PaymentService;
 import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,6 +46,30 @@ class CinemaTicketsIT {
                 }
                 """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail")
                 .value("Child tickets cannot be purchased without adult tickets."));
+    }
+
+    @Test
+    @DisplayName("should process a valid booking and call external services with correct values")
+    void shouldProcessValidBooking() throws Exception {
+        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+                {
+                  "accountId": 1,
+                  "ticketRequests": [
+                    {
+                      "type": "ADULT",
+                      "ticketCount": 1
+                    },
+                    {
+                      "type": "CHILD",
+                      "ticketCount": 1
+                    }
+                  ]
+                }
+                """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
+
+        verify(paymentService).debitAccount(1L, new BigDecimal("43.49"));
+
+        verify(seatReservationService).reserveSeats(1L, 2L);
     }
 
 
