@@ -17,60 +17,60 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.dwp.engineering.recruitment.thirdparty.PaymentService;
 import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("Cinema Tickets Integration Test")
+@DisplayName("Cinema Tickets Integration")
 class CinemaTicketsIT {
-    @Autowired
-    private MockMvc mockMvc;
 
-    @MockitoBean
-    private PaymentService paymentService;
+  private static final Long VALID_ACCOUNT_ID = 1L;
 
-    @MockitoBean
-    private SeatReservationService seatReservationService;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Test
-    @DisplayName("should reject child booking without an adult")
-    void shouldRejectChildBookingWithoutAdult() throws Exception {
-        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
-                {
-                  "accountId": 1,
-                  "ticketRequests": [
-                    {
-                      "type": "CHILD",
-                      "ticketCount": 1
-                    }
-                  ]
-                }
-                """)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail")
-                .value("Child tickets cannot be purchased without adult tickets."));
-        verifyNoInteractions(paymentService, seatReservationService);
-    }
+  @MockitoBean
+  private PaymentService paymentService;
 
-    @Test
-    @DisplayName("should process a valid booking and call external services with correct values")
-    void shouldProcessValidBooking() throws Exception {
-        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
-                {
-                  "accountId": 1,
-                  "ticketRequests": [
-                    {
-                      "type": "ADULT",
-                      "ticketCount": 1
-                    },
-                    {
-                      "type": "CHILD",
-                      "ticketCount": 1
-                    }
-                  ]
-                }
-                """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
+  @MockitoBean
+  private SeatReservationService seatReservationService;
 
-        verify(paymentService).debitAccount(1L, new BigDecimal("43.49"));
-        verify(seatReservationService).reserveSeats(1L, 2L);
-    }
+  @Test
+  @DisplayName("should reject child booking without an adult")
+  void shouldRejectChildBookingWithoutAdult() throws Exception {
+    mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+        {
+          "accountId": 1,
+          "ticketRequests": [
+            {
+              "type": "CHILD",
+              "ticketCount": 1
+            }
+          ]
+        }
+        """)).andExpect(status().isBadRequest()).andExpect(
+        jsonPath("$.detail").value("Child tickets cannot be purchased without adult tickets."));
+    verifyNoInteractions(paymentService, seatReservationService);
+  }
 
+  @Test
+  @DisplayName("should process a valid booking and call external services with correct values")
+  void shouldProcessValidBooking() throws Exception {
+    mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+        {
+          "accountId": 1,
+          "ticketRequests": [
+            {
+              "type": "ADULT",
+              "ticketCount": 1
+            },
+            {
+              "type": "CHILD",
+              "ticketCount": 1
+            }
+          ]
+        }
+        """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
 
+    verify(paymentService).debitAccount(VALID_ACCOUNT_ID, new BigDecimal("43.49"));
+    verify(seatReservationService).reserveSeats(VALID_ACCOUNT_ID, 2L);
+  }
 }
