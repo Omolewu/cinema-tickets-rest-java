@@ -6,6 +6,7 @@ import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
 @Component
 class BookingValidator {
+
     private static final int MAX_TICKETS_PER_PURCHASE = 25;
 
     void validate(final Long accountId, final TicketRequest... ticketRequests)
@@ -21,8 +22,8 @@ class BookingValidator {
 
         int totalTicketCount = 0;
         int adultTicketCount = 0;
-        int infantTicketCount = 0;
         int childTicketCount = 0;
+        int infantTicketCount = 0;
 
         for (final var ticketRequest : ticketRequests) {
             if (ticketRequest == null) {
@@ -60,9 +61,5 @@ class BookingValidator {
             throw new InvalidBookingException(
                     "Child tickets cannot be purchased without adult tickets.");
         }
-
     }
-
-
-
 }
