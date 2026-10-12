@@ -20,87 +20,84 @@ import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 import uk.gov.dwp.engineering.recruitment.exception.RestExceptionHandler;
 
-@DisplayName("Cinema Tickets Controller Test")
+@DisplayName("Cinema Tickets Controller")
 @ExtendWith(MockitoExtension.class)
 class CinemaTicketsControllerTest {
 
-    @Mock
-    private CinemaTicketsService cinemaTicketsService;
+  @Mock
+  private CinemaTicketsService cinemaTicketsService;
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        final var controller = new CinemaTicketsController(cinemaTicketsService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new RestExceptionHandler()).build();
+  @BeforeEach
+  void setUp() {
+    final var controller = new CinemaTicketsController(cinemaTicketsService);
+    mockMvc = MockMvcBuilders.standaloneSetup(controller)
+        .setControllerAdvice(new RestExceptionHandler()).build();
+  }
 
-    }
+  @Test
+  @DisplayName("should return bad request when booking is invalid")
+  void shouldReturnBadRequestWhenBookingIsInvalid() throws Exception {
+    final var errorMessage = "Child tickets cannot be purchased without adult tickets.";
 
-    @Test
-    @DisplayName("should return bad request when booking is invalid")
-    void shouldReturnBadRequestWhenBookingIsInvalid() throws Exception {
-        final var errorMessage = "Child tickets cannot be purchased without adult tickets.";
+    when(cinemaTicketsService.purchaseTickets(eq(1L), any(TicketRequest[].class)))
+        .thenThrow(new InvalidBookingException(errorMessage));
 
-        when(cinemaTicketsService.purchaseTickets(eq(1L), any(TicketRequest[].class)))
-                .thenThrow(new InvalidBookingException(errorMessage));
+    mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+        {
+          "accountId": 1,
+          "ticketRequests": [
+            {
+              "type": "CHILD",
+              "ticketCount": 1
+            }
+          ]
+        }
+        """)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value(errorMessage));
+  }
 
-        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
-                {
-                    "accountId": 1,
-                    "ticketRequests": [
-                        {
-                            "type": "CHILD",
-                            "ticketCount": 1
-                        }
-                    ]
-                }
-                """)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value(errorMessage));
+  @Test
+  @DisplayName("should return created with booking confirmation for a valid booking")
+  void shouldReturnCreatedWithBookingConfirmationForValidBooking() throws Exception {
+    final var bookingConfirmation = new BookingConfirmation(1L);
 
-    }
+    when(cinemaTicketsService.purchaseTickets(eq(1L), any(TicketRequest[].class)))
+        .thenReturn(bookingConfirmation);
 
-    @Test
-    @DisplayName("should return created with booking confirmation for a valid booking")
-    void shouldReturnCreatedWithBookingConfirmationForValidBooking() throws Exception {
-        final var bookingConfirmation = new BookingConfirmation(1L);
+    mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+        {
+          "accountId": 1,
+          "ticketRequests": [
+            {
+              "type": "ADULT",
+              "ticketCount": 1
+            }
+          ]
+        }
+        """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
+  }
 
-        when(cinemaTicketsService.purchaseTickets(eq(1L), any(TicketRequest[].class)))
-                .thenReturn(bookingConfirmation);
+  @Test
+  @DisplayName("should return bad request when account ID is invalid")
+  void shouldReturnBadRequestWhenAccountIdIsInvalid() throws Exception {
+    final var errorMessage = "Account ID must be greater than zero.";
 
-        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
-                {
-                  "accountId": 1,
-                  "ticketRequests": [
-                    {
-                      "type": "ADULT",
-                      "ticketCount": 1
-                    }
-                  ]
-                }
-                """)).andExpect(status().isCreated()).andExpect(jsonPath("$.accountId").value(1));
-    }
+    when(cinemaTicketsService.purchaseTickets(eq(0L), any(TicketRequest[].class)))
+        .thenThrow(new InvalidBookingException(errorMessage));
 
-    @Test
-    @DisplayName("should return bad request when account ID is invalid")
-    void shouldReturnBadRequestWhenAccountIdIsInvalid() throws Exception {
-        final var errorMessage = "Account ID must be greater than zero.";
-
-        when(cinemaTicketsService.purchaseTickets(eq(0L), any(TicketRequest[].class)))
-                .thenThrow(new InvalidBookingException(errorMessage));
-
-        mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
-                {
-                  "accountId": 0,
-                  "ticketRequests": [
-                    {
-                      "type": "ADULT",
-                      "ticketCount": 1
-                    }
-                  ]
-                }
-                """)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value(errorMessage));
-    }
-
+    mockMvc.perform(post("/cinema/bookings").contentType(MediaType.APPLICATION_JSON).content("""
+        {
+          "accountId": 0,
+          "ticketRequests": [
+            {
+              "type": "ADULT",
+              "ticketCount": 1
+            }
+          ]
+        }
+        """)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value(errorMessage));
+  }
 }
