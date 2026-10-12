@@ -30,7 +30,7 @@ mvn clean verify
 Integration tests are located under:
 
 ```text
-src/integration-test/java
+src/integration-test/java/uk/gov/dwp/engineering/recruitment
 ```
 
 and are executed by the Maven Failsafe Plugin.
@@ -51,7 +51,7 @@ Example request:
 }
 ```
 
-**Successful response — `201 Created`:**
+**Successful response - `201 Created`:**
 
 ```json
 {
@@ -59,7 +59,7 @@ Example request:
 }
 ```
 
-Invalid booking response — `400 Bad Request`:
+Invalid booking response - `400 Bad Request`:
 
 ```json
 {
